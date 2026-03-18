@@ -1,4 +1,5 @@
 import { Logo } from "@/components/Logo";
+import { Github } from "lucide-react";
 
 export function Footer() {
   return (
@@ -8,9 +9,20 @@ export function Footer() {
           <Logo size={20} />
           <span className="text-sm text-muted-foreground font-medium">API Authenticity Checker</span>
         </div>
-        <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} All rights reserved.
-        </p>
+        <div className="flex items-center gap-4">
+          <a
+            href="https://github.com/zzsting88/APIVerifier"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Github className="w-4 h-4" />
+            <span>GitHub</span>
+          </a>
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} All rights reserved.
+          </p>
+        </div>
       </div>
     </footer>
   );

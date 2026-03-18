@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import fs from "fs";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
@@ -17,7 +16,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     mode === "development" && {
-      name: "probe-relay-with-file-log",
+      name: "probe-relay",
       configureServer(server) {
         server.middlewares.use("/__probe", (req, res) => {
           if (req.method !== "POST") {
@@ -33,9 +32,7 @@ export default defineConfig(({ mode }) => ({
           });
 
           req.on("end", async () => {
-            const now = new Date();
-            const date = now.toISOString().slice(0, 10);
-            const logPath = `/tmp/${date}.log`;
+            const logPath = null;
             try {
               const parsed = JSON.parse(raw || "{}");
               const endpoint = typeof parsed.endpoint === "string" ? parsed.endpoint : "";
@@ -257,41 +254,6 @@ export default defineConfig(({ mode }) => ({
                   .toLowerCase()
                   .includes("hit");
 
-              const reqLog = {
-                type: "request",
-                ts: now.toISOString(),
-                stage,
-                endpoint,
-                method,
-                headers,
-                body,
-              };
-              const respLog = {
-                type: "response",
-                ts: new Date().toISOString(),
-                stage,
-                endpoint,
-                status: upstream.status,
-                statusText: upstream.statusText,
-                latencyMs,
-                firstChunkLatencyMs,
-                usage,
-                cacheHit,
-                cacheReadInputTokens: cacheRead,
-                cacheCreationInputTokens: cacheCreation,
-                responseHeaders: respHeaders,
-                mode,
-                anthropicStream,
-                signatureDeltaTotalLength,
-                signatureDeltaCount,
-                sseEventTypes,
-                sseContentTypes,
-                bodyText,
-              };
-
-              fs.appendFileSync(logPath, `${JSON.stringify(reqLog)}\n`, "utf8");
-              fs.appendFileSync(logPath, `${JSON.stringify(respLog)}\n`, "utf8");
-
               res.statusCode = 200;
               res.setHeader("Content-Type", "application/json");
               res.end(
@@ -313,13 +275,6 @@ export default defineConfig(({ mode }) => ({
                 })
               );
             } catch (error) {
-              const errorLog = {
-                type: "relay_error",
-                ts: new Date().toISOString(),
-                raw,
-                error: error instanceof Error ? error.message : "relay_failed",
-              };
-              fs.appendFileSync(logPath, `${JSON.stringify(errorLog)}\n`, "utf8");
               res.statusCode = 500;
               res.setHeader("Content-Type", "application/json");
               res.end(
