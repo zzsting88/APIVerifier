@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shield, Zap } from "lucide-react";
+import { Shield, Zap, Info } from "lucide-react";
+import { Logo } from "@/components/Logo";
+import { Footer } from "@/components/Footer";
 import { ApiConfig } from "@/components/ApiConfig";
 import { ModelSelector } from "@/components/ModelSelector";
 import { ScoreGauge } from "@/components/ScoreGauge";
@@ -92,15 +94,18 @@ const Index = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              {lang === "zh" ? "API 真实性检测" : "Authenticity Check"}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+          <div className="flex items-center gap-3">
+            <Logo size={36} />
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                {lang === "zh" ? "API 真实性检测" : "Authenticity Check"}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
               {lang === "zh"
                 ? "验证您的 AI 模型 API 端点是否名副其实"
                 : "Verify the model behind the endpoint."}
             </p>
+            </div>
           </div>
           <div className="flex items-center border border-border rounded-full overflow-hidden text-sm">
             <button
@@ -116,6 +121,16 @@ const Index = () => {
               中文
             </button>
           </div>
+        </div>
+
+        {/* Security Notice */}
+        <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 mb-4">
+          <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {lang === "zh"
+              ? "🔒 为了账户安全，建议使用测试用途的 API Key 进行检测。本项目已开源，不会在后端存储您的 API Key，所有历史记录仅保存在浏览器本地（Cookie）中。"
+              : "🔒 For security, we recommend using a test API Key. This project is open-source and does not store your API Key on any server. All history is saved locally in your browser (cookies)."}
+          </p>
         </div>
 
         {/* Config Section */}
@@ -215,6 +230,7 @@ const Index = () => {
           onExport={() => toast.success(lang === "zh" ? "导出功能即将上线" : "Export coming soon")}
         />
       </div>
+      <Footer />
     </div>
   );
 };
