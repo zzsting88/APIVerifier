@@ -2,12 +2,27 @@ import { useState, useRef } from "react";
 import { Search, X } from "lucide-react";
 
 const PROVIDERS = [
-  { name: "OpenAI Official", url: "https://api.openai.com" },
   { name: "Anthropic Official", url: "https://api.anthropic.com"},
   { name: "OpenRouter", url: "https://openrouter.ai/api" },
-  { name: "One API", url: "https://one-api.example.com" },
-  { name: "New API", url: "https://new-api.example.com" },
-  { name: "AI Proxy", url: "https://ai-proxy.example.com" },
+  { name: "PackyAPI", url: "https://www.packyapi.com" },
+  { name: "AiGoCode", url: "https://api.aigocode.com" },
+  { name: "RightCode", url: "https://www.right.codes/claude" },
+  { name: "FoxCode", url: "https://code.newcli.com/claude" },
+  { name: "YESCode", url: "https://co.yes.vg" },
+  { name: "SSSAiCode", url: "https://node-hk.sssaicode.com/api" },
+  { name: "MiCu", url: "https://www.openclaudecode.cn" },
+  { name: "DawCode", url: "https://dawclaudecode.com" },
+  { name: "CodeSome", url: "https://cc.codesome.ai" },
+  { name: "OhMyGPT", url: "https://apic1.ohmycdn.com" },
+  { name: "Aiberm", url: "https://aiberm.com" },
+  { name: "IKunCode", url: "https://api.ikuncode.cc" },
+  { name: "TerminalPub", url: "https://terminal.pub" },
+  { name: "XCode", url: "https://xcode.best" },
+  { name: "byecat", url: "https://www.bytecatcode.org" },
+  { name: "CCFly", url: "https://api-hk.ccfly.codes" },
+  { name: "TimiCC", url: "https://timicc.com" },
+  { name: "YunWU", url: "https://yunwu.ai" },
+
 ];
 
 interface ApiConfigProps {
@@ -49,6 +64,11 @@ export function ApiConfig({ url, apiKey, onUrlChange, onApiKeyChange }: ApiConfi
             <input
               ref={inputRef}
               type="text"
+              name="api-endpoint-url"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
               value={url}
               onChange={(e) => {
                 onUrlChange(e.target.value);
@@ -95,6 +115,14 @@ export function ApiConfig({ url, apiKey, onUrlChange, onApiKeyChange }: ApiConfi
             {keyFocused ? (
               <input
                 type={showKey ? "text" : "password"}
+                name="api-access-key"
+                autoComplete="new-password"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-form-type="other"
                 value={apiKey}
                 onChange={(e) => onApiKeyChange(e.target.value)}
                 onBlur={() => setKeyFocused(false)}
