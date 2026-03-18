@@ -13,6 +13,9 @@ interface DetectionChecklistProps {
   items: CheckItem[];
   latency?: number;
   tps?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  totalTokens?: number;
 }
 
 const statusConfig = {
@@ -21,7 +24,7 @@ const statusConfig = {
   warning: { icon: AlertTriangle, label: "Warning", className: "text-warning" },
 };
 
-export function DetectionChecklist({ items, latency, tps }: DetectionChecklistProps) {
+export function DetectionChecklist({ items, latency, tps, inputTokens, outputTokens, totalTokens }: DetectionChecklistProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   return (
@@ -77,7 +80,7 @@ export function DetectionChecklist({ items, latency, tps }: DetectionChecklistPr
       })}
 
       {/* Performance metrics */}
-      {(latency || tps) && (
+      {(latency || tps || inputTokens !== undefined || outputTokens !== undefined || totalTokens !== undefined) && (
         <div className="flex gap-6 pt-4 mt-2 border-t border-border">
           {latency && (
             <div>
@@ -89,6 +92,24 @@ export function DetectionChecklist({ items, latency, tps }: DetectionChecklistPr
             <div>
               <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Tokens/s</div>
               <div className="text-lg font-semibold text-foreground tabular-nums">{tps}</div>
+            </div>
+          )}
+          {inputTokens !== undefined && (
+            <div>
+              <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Input Tokens</div>
+              <div className="text-lg font-semibold text-foreground tabular-nums">{inputTokens}</div>
+            </div>
+          )}
+          {outputTokens !== undefined && (
+            <div>
+              <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Output Tokens</div>
+              <div className="text-lg font-semibold text-foreground tabular-nums">{outputTokens}</div>
+            </div>
+          )}
+          {totalTokens !== undefined && (
+            <div>
+              <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Total Tokens</div>
+              <div className="text-lg font-semibold text-foreground tabular-nums">{totalTokens}</div>
             </div>
           )}
         </div>
