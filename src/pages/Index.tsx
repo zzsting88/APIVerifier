@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, Zap, Info } from "lucide-react";
 import { Logo } from "@/components/Logo";
@@ -24,6 +24,27 @@ interface DetectionResult {
 
 type CheckStatus = "pass" | "warning" | "fail";
 type EndpointMode = "anthropic" | "openai";
+
+type TurnstileApi = {
+  render: (
+    container: HTMLElement,
+    options: {
+      sitekey: string;
+      callback?: (token: string) => void;
+      "expired-callback"?: () => void;
+      "error-callback"?: () => void;
+      theme?: "light" | "dark" | "auto";
+      action?: string;
+    }
+  ) => string | number;
+  reset: (widgetId?: string | number) => void;
+};
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileApi;
+  }
+}
 
 interface ProbeResult {
   prompt: string;
@@ -73,6 +94,7 @@ const UNKNOWN_PATTERNS = [
   /not\s*sure/i,
   /can't\s*tell/i,
 ];
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 
 function resolveEndpoint(rawUrl: string): { endpoint: string; mode: EndpointMode } {
   const trimmed = rawUrl.trim();
@@ -528,18 +550,77 @@ const Index = () => {
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [turnstileVerified, setTurnstileVerified] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [lang, setLang] = useState<"en" | "zh">("zh");
+  const turnstileContainerRef = useRef<HTMLDivElement | null>(null);
+  const turnstileWidgetIdRef = useRef<string | number | null>(null);
+
+  const resetTurnstile = useCallback(() => {
+    setTurnstileVerified(false);
+    setTurnstileToken(null);
+    if (window.turnstile && turnstileWidgetIdRef.current !== null) {
+      window.turnstile.reset(turnstileWidgetIdRef.current);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY) return;
+
+    const mountWidget = () => {
+      if (!window.turnstile || !turnstileContainerRef.current) return;
+      if (turnstileWidgetIdRef.current !== null) return;
+
+      turnstileWidgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        action: "start_detection",
+        theme: "light",
+        callback: (token: string) => {
+          setTurnstileToken(token);
+          setTurnstileVerified(true);
+        },
+        "expired-callback": () => {
+          setTurnstileToken(null);
+          setTurnstileVerified(false);
+        },
+        "error-callback": () => {
+          setTurnstileToken(null);
+          setTurnstileVerified(false);
+        },
+      });
+    };
+
+    mountWidget();
+    const timer = window.setInterval(mountWidget, 250);
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, []);
 
   const runDetection = useCallback(async () => {
     if (!url) { toast.error("Please enter an API endpoint URL"); return; }
     if (!apiKey) { toast.error("Please enter your API Key"); return; }
     if (!selectedModel) { toast.error("Please select a target model"); return; }
-    if (!turnstileVerified) { toast.error("Please complete human verification first"); return; }
+    if (!TURNSTILE_SITE_KEY) { toast.error("Turnstile site key is missing"); return; }
+    if (!turnstileVerified || !turnstileToken) { toast.error("Please complete human verification first"); return; }
 
     setIsScanning(true);
     setResult(null);
 
     try {
+      const verifyResp = await fetch("/__turnstile/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ token: turnstileToken }),
+      });
+      const verifyData = await verifyResp.json();
+      if (!verifyResp.ok || !verifyData?.success) {
+        const codes = Array.isArray(verifyData?.["error-codes"])
+          ? verifyData["error-codes"].join(",")
+          : "turnstile_verify_failed";
+        resetTurnstile();
+        throw new Error(`Turnstile verify failed: ${codes}`);
+      }
+
       const stage1 = await sendProbe({
         baseUrl: url,
         apiKey,
@@ -610,8 +691,9 @@ const Index = () => {
       toast.error(lang === "zh" ? `检测失败: ${message}` : `Detection failed: ${message}`);
     } finally {
       setIsScanning(false);
+      resetTurnstile();
     }
-  }, [url, apiKey, selectedModel, turnstileVerified, lang]);
+  }, [url, apiKey, selectedModel, turnstileVerified, turnstileToken, lang, resetTurnstile]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -674,29 +756,21 @@ const Index = () => {
 
         {/* Action Row */}
         <div className="flex items-center justify-between mb-6">
-          {/* Turnstile mock */}
-          <button
-            onClick={() => setTurnstileVerified(!turnstileVerified)}
+          <div
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all ${
               turnstileVerified
                 ? "border-primary bg-primary/5"
                 : "border-border bg-card hover:border-primary/30"
             }`}
           >
-            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-              turnstileVerified ? "border-primary bg-primary" : "border-muted-foreground"
-            }`}>
-              {turnstileVerified && (
-                <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-            </div>
-            <span className="text-sm text-foreground">
-              {lang === "zh" ? "验证您是人类" : "Verify you are human"}
-            </span>
-            <span className="text-[10px] text-muted-foreground font-mono ml-1">CLOUDFLARE</span>
-          </button>
+            {TURNSTILE_SITE_KEY ? (
+              <div ref={turnstileContainerRef} />
+            ) : (
+              <span className="text-sm text-muted-foreground">
+                {lang === "zh" ? "Turnstile 未配置 site key" : "Turnstile site key missing"}
+              </span>
+            )}
+          </div>
 
           <motion.button
             whileTap={{ scale: 0.95 }}
