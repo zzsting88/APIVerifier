@@ -15,7 +15,8 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       host: "::",
-      port: 8080,
+      port: 6722,
+      allowedHosts: ["localhost", "127.0.0.1", "hvoy.ai", "www.hvoy.ai"],
       hmr: {
         overlay: false,
       },
