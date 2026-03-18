@@ -7,7 +7,7 @@ export function Footer() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Logo size={20} />
-          <span className="text-sm text-muted-foreground font-medium">API Authenticity Checker</span>
+          <span className="text-sm text-muted-foreground font-medium">API Verity Lab</span>
         </div>
         <div className="flex items-center gap-4">
           <a

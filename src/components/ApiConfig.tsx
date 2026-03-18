@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, type CSSProperties } from "react";
 import { Search, X } from "lucide-react";
 
 const PROVIDERS = [
@@ -114,7 +114,7 @@ export function ApiConfig({ url, apiKey, onUrlChange, onApiKeyChange }: ApiConfi
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm">🔑</span>
             {keyFocused ? (
               <input
-                type={showKey ? "text" : "password"}
+                type="text"
                 name="api-access-key"
                 autoComplete="new-password"
                 autoCorrect="off"
@@ -127,6 +127,7 @@ export function ApiConfig({ url, apiKey, onUrlChange, onApiKeyChange }: ApiConfi
                 onChange={(e) => onApiKeyChange(e.target.value)}
                 onBlur={() => setKeyFocused(false)}
                 autoFocus
+                style={{ WebkitTextSecurity: showKey ? "none" : "disc" } as CSSProperties}
                 className="w-full h-11 pl-10 pr-20 rounded-lg bg-muted border border-border text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
               />
             ) : (

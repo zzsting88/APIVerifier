@@ -94,6 +94,23 @@ const UNKNOWN_PATTERNS = [
   /not\s*sure/i,
   /can't\s*tell/i,
 ];
+
+const REFUSAL_PATTERNS = [
+  /cannot\s+discuss/i,
+  /can'?t\s+discuss/i,
+  /cannot\s+provide/i,
+  /can'?t\s+provide/i,
+  /cannot\s+help/i,
+  /can'?t\s+help/i,
+  /cannot\s+comply/i,
+  /unable\s+to\s+comply/i,
+  /无法讨论/i,
+  /不能讨论/i,
+  /无法提供/i,
+  /拒绝回答/i,
+  /cannot\s+answer/i,
+  /can'?t\s+answer/i,
+];
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 
 function resolveEndpoint(rawUrl: string): { endpoint: string; mode: EndpointMode } {
@@ -539,7 +556,9 @@ function isUnknownResponse(text: string): boolean {
   const normalized = text.trim();
   if (!normalized) return true;
   if (normalized.replace(/\s+/g, "").length < 8) return true;
-  return UNKNOWN_PATTERNS.some((pattern) => pattern.test(normalized));
+  if (UNKNOWN_PATTERNS.some((pattern) => pattern.test(normalized))) return true;
+  if (REFUSAL_PATTERNS.some((pattern) => pattern.test(normalized))) return true;
+  return false;
 }
 
 const Index = () => {
@@ -704,12 +723,12 @@ const Index = () => {
             <Logo size={36} />
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                {lang === "zh" ? "API 真实性检测" : "Authenticity Check"}
+                {lang === "zh" ? "中转站API鉴定所" : "API Verity Lab"}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
               {lang === "zh"
-                ? "验证您的 AI 模型 API 端点是否名副其实"
-                : "Verify the model behind the endpoint."}
+                ? "拒绝 API 中转站挂羊头卖狗肉"
+                : "Stop the API Bait-and-Switch. Verify the Truth"}
             </p>
             </div>
           </div>
