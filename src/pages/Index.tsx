@@ -81,17 +81,27 @@ function resolveEndpoint(rawUrl: string): { endpoint: string; mode: EndpointMode
   const normalized = trimmed.replace(/\/+$/, "");
   const lowered = normalized.toLowerCase();
 
-  if (lowered.includes("/v1/chat/completions")) {
-    return { endpoint: normalized, mode: "openai" };
-  }
-  if (lowered.includes("/v1/messages")) {
-    return { endpoint: normalized, mode: "anthropic" };
-  }
-  if (lowered.endsWith("/v1")) {
-    return { endpoint: `${normalized}/messages`, mode: "anthropic" };
-  }
+  const mode: EndpointMode =
+    lowered.includes("/v1/chat/completions") ||
+    lowered.endsWith("/chat/completions") ||
+    lowered.includes("api.openai.com") ||
+    lowered.includes("openrouter.ai")
+      ? "openai"
+      : "anthropic";
 
-  return { endpoint: `${normalized}/v1/messages`, mode: "anthropic" };
+  const base = normalized
+    .replace(/\/v1\/chat\/completions\/?$/i, "")
+    .replace(/\/chat\/completions\/?$/i, "")
+    .replace(/\/v1\/messages?\/?$/i, "")
+    .replace(/\/v1\/?$/i, "")
+    .replace(/\/+$/, "");
+
+  if (!base) return { endpoint: "", mode };
+
+  if (mode === "openai") {
+    return { endpoint: `${base}/v1/chat/completions`, mode };
+  }
+  return { endpoint: `${base}/v1/messages`, mode };
 }
 
 function extractResponseText(payload: any, mode: EndpointMode): string {
@@ -513,7 +523,7 @@ function isUnknownResponse(text: string): boolean {
 const Index = () => {
   const [url, setUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
-  const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string | null>("claude-sonnet-4-6");
   const [isScanning, setIsScanning] = useState(false);
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -577,7 +587,7 @@ const Index = () => {
       };
       setResult(newResult);
 
-      const modelName = selectedModel === "claude-opus-4.6" ? "Opus 4.6" : "Sonnet 4.6";
+      const modelName = selectedModel === "claude-opus-4-6" ? "Opus 4.6" : "Sonnet 4.6";
       const now = new Date();
       const timestamp = `${now.getMonth() + 1}/${now.getDate()}, ${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
 
@@ -595,19 +605,6 @@ const Index = () => {
       ]);
 
       toast.success(lang === "zh" ? "检测完成" : "Detection complete");
-      const cacheHit = stage1.cacheHit || Boolean(stage2?.cacheHit);
-      const ttftCandidates = [stage1.firstTokenLatencyMs, stage2?.firstTokenLatencyMs ?? null].filter(
-        (v): v is number => typeof v === "number"
-      );
-      const ttft =
-        ttftCandidates.length > 0
-          ? Math.round(ttftCandidates.reduce((sum, cur) => sum + cur, 0) / ttftCandidates.length)
-          : null;
-      const summaryText =
-        lang === "zh"
-          ? `Token(in/out/total): ${inputTokenSum}/${outputTokenSum}/${totalTokenSum} | Cache: ${cacheHit ? "HIT" : "MISS"} | 首token: ${ttft ?? "N/A"}ms`
-          : `Tokens(in/out/total): ${inputTokenSum}/${outputTokenSum}/${totalTokenSum} | Cache: ${cacheHit ? "HIT" : "MISS"} | First token: ${ttft ?? "N/A"}ms`;
-      toast.info(summaryText);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Detection failed";
       toast.error(lang === "zh" ? `检测失败: ${message}` : `Detection failed: ${message}`);

@@ -8,8 +8,8 @@ export interface ModelOption {
 }
 
 const MODELS: ModelOption[] = [
-  { id: "claude-opus-4-6", name: "Claude Opus 4.6", provider: "Anthropic" },
   { id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6", provider: "Anthropic" },
+  { id: "claude-opus-4-6", name: "Claude Opus 4.6", provider: "Anthropic" },
 ];
 
 interface ModelSelectorProps {

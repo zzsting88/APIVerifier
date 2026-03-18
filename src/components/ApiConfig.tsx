@@ -2,12 +2,12 @@ import { useState, useRef } from "react";
 import { Search, X } from "lucide-react";
 
 const PROVIDERS = [
-  { name: "OpenAI Official", url: "https://api.openai.com/v1/chat/completions", icon: "🟢" },
-  { name: "Anthropic Official", url: "https://api.anthropic.com/v1/messages", icon: "🟠" },
-  { name: "OpenRouter", url: "https://openrouter.ai/api/v1/chat/completions", icon: "🔵" },
-  { name: "One API", url: "https://one-api.example.com/v1/chat/completions", icon: "⚡" },
-  { name: "New API", url: "https://new-api.example.com/v1/chat/completions", icon: "🆕" },
-  { name: "AI Proxy", url: "https://ai-proxy.example.com/v1/chat/completions", icon: "🔄" },
+  { name: "OpenAI Official", url: "https://api.openai.com" },
+  { name: "Anthropic Official", url: "https://api.anthropic.com"},
+  { name: "OpenRouter", url: "https://openrouter.ai/api" },
+  { name: "One API", url: "https://one-api.example.com" },
+  { name: "New API", url: "https://new-api.example.com" },
+  { name: "AI Proxy", url: "https://ai-proxy.example.com" },
 ];
 
 interface ApiConfigProps {
@@ -31,14 +31,14 @@ export function ApiConfig({ url, apiKey, onUrlChange, onApiKeyChange }: ApiConfi
   );
 
   const maskedKey = apiKey
-    ? apiKey.length > 7
-      ? `${apiKey.slice(0, 5)}${"•".repeat(Math.min(apiKey.length - 7, 20))}${apiKey.slice(-2)}`
+    ? apiKey.length > 9
+      ? `${apiKey.slice(0, 7)}${"•".repeat(Math.min(apiKey.length - 9, 20))}${apiKey.slice(-2)}`
       : "•".repeat(apiKey.length)
     : "";
 
   return (
     <div>
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_560px] gap-4">
         {/* URL Input */}
         <div>
           <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider font-mono">
@@ -56,7 +56,7 @@ export function ApiConfig({ url, apiKey, onUrlChange, onApiKeyChange }: ApiConfi
               }}
               onFocus={() => setShowDropdown(true)}
               onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-              placeholder="https://api.openai.com/v1/chat/completions"
+              placeholder="https://api.anthropic.com"
               className="w-full h-11 pl-10 pr-4 rounded-lg bg-muted border border-border text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
             />
             {showDropdown && (
