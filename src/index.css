@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 210 94% 7%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 94% 7%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 94% 7%;
+
+    --primary: 145 55% 51%;
+    --primary-foreground: 0 0% 100%;
+
+    --primary-hover: 153 95% 42%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 210 94% 7%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 210 10% 40%;
+
+    --accent: 220 14% 96%;
+    --accent-foreground: 210 94% 7%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 94% 7% / 0.08;
+    --input: 210 94% 7% / 0.08;
+    --ring: 145 55% 51%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --warning: 38 92% 50%;
+    --success: 145 55% 51%;
+    --error: 0 84% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tracking-tight {
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Scanning laser animation */
+@keyframes laser-sweep {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+.laser-sweep {
+  animation: laser-sweep 2s cubic-bezier(0.2, 0, 0, 1) infinite;
+}

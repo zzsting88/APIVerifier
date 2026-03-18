@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中转 API 鉴真台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" rel="stylesheet">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <style>
+    :root {
+      --brand: #0ea37d;
+      --brand-dark: #0a7f62;
+      --accent: #f97316;
+      --bg: #eff3f7;
+      --card: #ffffff;
+      --text: #132331;
+      --muted: #5d6e7e;
+      --line: #d6e0e8;
+      --ok: #19a46f;
+      --bad: #dc3e33;
+      --warn: #d08913;
+      --shadow: 0 12px 26px rgba(14, 37, 53, 0.08);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% -10%, rgba(14, 163, 125, 0.18), transparent 40%),
+        radial-gradient(circle at 90% 0%, rgba(249, 115, 22, 0.12), transparent 35%),
+        var(--bg);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .shell {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .hero {
+      padding: 18px;
+      background:
+        linear-gradient(130deg, rgba(14, 163, 125, 0.14), rgba(249, 115, 22, 0.1)),
+        #ffffff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -34px;
+      top: -34px;
+      width: 128px;
+      height: 128px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(14, 163, 125, 0.3), transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-title {
+      font-family: "Outfit", "Noto Sans SC", sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .hero-sub {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .section-title i {
+      color: var(--brand);
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field > label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .input-shell {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #fbfdff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      min-height: 48px;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .input-shell:focus-within {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(14, 163, 125, 0.14);
+      background: #fff;
+    }
+
+    .input-shell i.prefix {
+      color: #8293a3;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    input {
+      border: none;
+      outline: none;
+      width: 100%;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .input-btn {
+      border: none;
+      background: transparent;
+      color: #748697;
+      font-size: 17px;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      transition: background 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .input-btn:hover {
+      background: #ecf3f8;
+      color: var(--brand-dark);
+    }
+
+    .field-tip {
+      color: #8ba0b1;
+      font-size: 12px;
+    }
+
+    .combobox {
+      position: relative;
+    }
+
+    .dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #fff;
+      box-shadow: 0 14px 26px rgba(11, 26, 37, 0.14);
+      max-height: 240px;
+      overflow: auto;
+      z-index: 12;
+      display: none;
+    }
+
+    .dropdown.show {
+      display: block;
+      animation: slide-down 0.16s ease;
+    }
+
+    @keyframes slide-down {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .vendor-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 10px 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .vendor-item:hover {
+      background: #f2f8fd;
+    }
+
+    .vendor-logo {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-family: "Outfit", sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .vendor-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .vendor-url {
+      color: #7f93a4;
+      font-size: 12px;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .model-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      background: #fbfdff;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .model-card:hover {
+      transform: translateY(-1px);
+      border-color: #b4c6d5;
+    }
+
+    .model-card.active {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(14, 163, 125, 0.14);
+      background: linear-gradient(140deg, rgba(14, 163, 125, 0.07), rgba(14, 163, 125, 0.02));
+    }
+
+    .model-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .model-name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .model-note {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .model-check {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid #9cb0c0;
+      color: transparent;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      transition: all 0.16s ease;
+    }
+
+    .model-card.active .model-check {
+      color: #fff;
+      border-color: var(--brand);
+      background: var(--brand);
+      box-shadow: 0 0 0 4px rgba(14, 163, 125, 0.15);
+    }
+
+    .action-bar {
+      border-top: 1px dashed var(--line);
+      margin-top: 6px;
+      padding-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .captcha-chip {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      background: #f8fbfe;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #6c8092;
+      font-size: 13px;
+    }
+
+    .captcha-chip.ok {
+      color: var(--ok);
+      border-color: rgba(25, 164, 111, 0.35);
+      background: rgba(25, 164, 111, 0.07);
+    }
+
+    .cta {
+      border: none;
+      border-radius: 999px;
+      min-height: 46px;
+      background: linear-gradient(120deg, var(--brand), var(--accent));
+      color: #fff;
+      font-family: "Outfit", "Noto Sans SC", sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(14, 163, 125, 0.28);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+    }
+
+    .cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 22px rgba(14, 163, 125, 0.33);
+    }
+
+    .cta:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-wrap {
+      display: grid;
+      gap: 12px;
+    }
+
+    .score-block {
+      border: 1px solid #e4ecf3;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      background: linear-gradient(160deg, rgba(14, 163, 125, 0.06), rgba(249, 115, 22, 0.04));
+      display: grid;
+      gap: 12px;
+    }
+
+    .ring-stack {
+      width: 170px;
+      height: 170px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .ring-stack svg {
+      width: 170px;
+      height: 170px;
+      display: block;
+    }
+
+    .ring-bg {
+      stroke: #e2ebf2;
+      stroke-width: 12;
+      fill: transparent;
+    }
+
+    .ring-fg {
+      stroke: var(--brand);
+      stroke-width: 12;
+      fill: transparent;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+    }
+
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding-top: 2px;
+    }
+
+    .score-num {
+      font-family: "Outfit", "Noto Sans SC", sans-serif;
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 700;
+      color: var(--brand-dark);
+    }
+
+    .score-text {
+      margin-top: 4px;
+      color: #607487;
+      font-size: 12px;
+    }
+
+    .grade {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: "Outfit", "Noto Sans SC", sans-serif;
+    }
+
+    .grade.good {
+      color: var(--ok);
+    }
+
+    .grade.mid {
+      color: var(--warn);
+    }
+
+    .grade.bad {
+      color: var(--bad);
+    }
+
+    .summary {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: -2px;
+    }
+
+    .perf-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .perf-chip {
+      border-radius: var(--radius-sm);
+      background: #fff;
+      border: 1px solid #e4ecf3;
+      padding: 9px 10px;
+      text-align: center;
+    }
+
+    .perf-val {
+      font-family: "Outfit", "Noto Sans SC", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    .perf-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .detail-table-wrap {
+      border: 1px solid #e4ecf3;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .detail-table th,
+    .detail-table td {
+      padding: 10px 11px;
+      text-align: left;
+      border-bottom: 1px solid #eef3f7;
+      vertical-align: middle;
+    }
+
+    .detail-table th {
+      color: #6e8294;
+      font-weight: 500;
+      font-size: 12px;
+      background: #f8fbfe;
+    }
+
+    .detail-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status.pass {
+      color: var(--ok);
+      background: rgba(25, 164, 111, 0.1);
+    }
+
+    .status.fail {
+      color: var(--bad);
+      background: rgba(220, 62, 51, 0.1);
+    }
+
+    .status.warn {
+      color: var(--warn);
+      background: rgba(208, 137, 19, 0.12);
+    }
+
+    .history-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .ghost-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #5d7284;
+    }
+
+    .ghost-btn:hover {
+      border-color: #aac0d2;
+      color: var(--brand-dark);
+    }
+
+    .history-table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e4ecf3;
+      border-radius: var(--radius-md);
+      background: #fff;
+    }
+
+    .history {
+      width: 100%;
+      min-width: 620px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .history th,
+    .history td {
+      padding: 10px 11px;
+      text-align: left;
+      border-bottom: 1px solid #eef3f7;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .history th {
+      color: #6e8294;
+      font-weight: 500;
+      font-size: 12px;
+      background: #f8fbfe;
+    }
+
+    .history tbody tr {
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .history tbody tr:hover {
+      background: #f4f9fd;
+    }
+
+    .history tbody tr.active {
+      background: #e9f6f1;
+    }
+
+    .score-pill {
+      font-family: "Outfit", "Noto Sans SC", sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .score-pill.good {
+      color: var(--ok);
+    }
+
+    .score-pill.mid {
+      color: var(--warn);
+    }
+
+    .score-pill.bad {
+      color: var(--bad);
+    }
+
+    .empty-text {
+      color: #8094a6;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 22, 33, 0.46);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      padding: 16px;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(500px, 100%);
+      border-radius: var(--radius-lg);
+      background: #fff;
+      padding: 16px;
+      box-shadow: 0 20px 40px rgba(8, 22, 33, 0.28);
+      display: grid;
+      gap: 10px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .modal-sub {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    #turnstileBox {
+      min-height: 72px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-md);
+      display: grid;
+      place-items: center;
+      background: #fbfdff;
+      padding: 10px;
+    }
+
+    .modal-foot {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .btn-light {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #5f7487;
+      border-radius: 10px;
+      min-height: 38px;
+      padding: 0 12px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .btn-main {
+      border: none;
+      background: linear-gradient(120deg, var(--brand), var(--accent));
+      color: #fff;
+      border-radius: 10px;
+      min-height: 38px;
+      padding: 0 14px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .btn-main:disabled {
+      opacity: 0.58;
+      cursor: not-allowed;
+    }
+
+    .fallback {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px dashed #d4e2ed;
+      border-radius: 10px;
+      padding: 9px 10px;
+      color: #6f8395;
+      font-size: 12px;
+      background: #f9fcff;
+    }
+
+    .fallback button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #567083;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%) translateY(18px);
+      background: rgba(10, 25, 35, 0.92);
+      color: #fff;
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 80;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .desktop-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    @media (min-width: 760px) {
+      .shell {
+        padding: 24px;
+        gap: 16px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .grid.two {
+        grid-template-columns: 1.4fr 1fr;
+      }
+
+      .model-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .action-bar {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+
+      .cta {
+        min-width: 240px;
+        min-height: 48px;
+      }
+
+      .result-wrap {
+        grid-template-columns: 320px 1fr;
+      }
+    }
+
+    @media (min-width: 1040px) {
+      .desktop-grid {
+        grid-template-columns: 1.08fr 0.92fr;
+        align-items: start;
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .hero-title {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="card hero">
+      <h1 class="hero-title">中转 API 鉴真台</h1>
+      <p class="hero-sub">识别“低端模型冒充高端模型”的风险，先做前端交互版，后续可无缝接入真实检测逻辑。</p>
+    </header>
+
+    <section class="card" id="configSection">
+      <div class="section-head">
+        <h2 class="section-title"><i class="ri-settings-4-line"></i>接口配置区</h2>
+      </div>
+
+      <div class="grid two">
+        <div class="field combobox" id="endpointCombobox">
+          <label for="endpointInput">API 接口地址</label>
+          <div class="input-shell">
+            <i class="ri-global-line prefix"></i>
+            <input id="endpointInput" type="text" placeholder="输入或选择中转地址，例如 https://api.xxx.com/v1/messages" autocomplete="off">
+            <button class="input-btn" id="comboToggle" aria-label="展开下拉">
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+          </div>
+          <div class="dropdown" id="endpointDropdown"></div>
+          <p class="field-tip">支持关键词检索，下拉项显示中转商 Logo。</p>
+        </div>
+
+        <div class="field" id="apiKeyField">
+          <label for="apiKeyInput">API Key（输入后失焦自动脱敏）</label>
+          <div class="input-shell">
+            <i class="ri-key-2-line prefix"></i>
+            <input id="apiKeyInput" type="password" placeholder="sk-...">
+            <button class="input-btn" id="toggleKeyBtn" aria-label="显示或隐藏 Key">
+              <i class="ri-eye-off-line"></i>
+            </button>
+            <button class="input-btn" id="copyKeyBtn" aria-label="复制 Key">
+              <i class="ri-file-copy-line"></i>
+            </button>
+            <button class="input-btn" id="clearKeyBtn" aria-label="清除 Key">
+              <i class="ri-delete-bin-6-line"></i>
+            </button>
+          </div>
+          <p class="field-tip">脱敏格式：前 5 位 + *** + 后 2 位。</p>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top: 10px;">
+        <label>模型勾选</label>
+        <div class="model-grid" id="modelGrid">
+          <button class="model-card active" data-model="claude-opus-4-6" data-name="Claude Opus 4.6" type="button">
+            <div class="model-top">
+              <div>
+                <p class="model-name">Claude 3.5 Opus 4.6</p>
+                <p class="model-note">高性能基线，重点检查是否被 Haiku 替换</p>
+              </div>
+              <span class="model-check"><i class="ri-check-line"></i></span>
+            </div>
+          </button>
+          <button class="model-card" data-model="claude-sonnet-4-6" data-name="Claude Sonnet 4.6" type="button">
+            <div class="model-top">
+              <div>
+                <p class="model-name">Claude 3.5 Sonnet 4.6</p>
+                <p class="model-note">性价比基线，关注响应结构与稳定性</p>
+              </div>
+              <span class="model-check"><i class="ri-check-line"></i></span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <div class="captcha-chip" id="captchaChip">
+          <i class="ri-shield-star-line"></i>
+          <span>未完成人机验证</span>
+        </div>
+        <button class="cta" id="startBtn" type="button">
+          <i class="ri-shield-check-line"></i>
+          开始检测
+        </button>
+      </div>
+    </section>
+
+    <div class="desktop-grid">
+      <section class="card">
+        <div class="section-head">
+          <h2 class="section-title"><i class="ri-pie-chart-2-line"></i>结果展示区</h2>
+          <span id="runMeta" style="font-size: 12px; color: #7890a2;">等待检测</span>
+        </div>
+
+        <div class="result-wrap">
+          <div class="score-block">
+            <div class="ring-stack">
+              <svg viewBox="0 0 170 170" aria-hidden="true">
+                <circle class="ring-bg" cx="85" cy="85" r="56"></circle>
+                <circle class="ring-fg" id="scoreRing" cx="85" cy="85" r="56"></circle>
+              </svg>
+              <div class="ring-center">
+                <div class="score-num" id="scoreNum">--</div>
+                <div class="score-text">真实度得分</div>
+              </div>
+            </div>
+            <div class="grade mid" id="gradeText">待检测</div>
+            <p class="summary" id="summaryText">点击“开始检测”后生成结果</p>
+            <div class="perf-row">
+              <div class="perf-chip">
+                <div class="perf-val" id="latencyVal">--</div>
+                <div class="perf-label">Latency</div>
+              </div>
+              <div class="perf-chip">
+                <div class="perf-val" id="tpsVal">--</div>
+                <div class="perf-label">Tokens/s</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-table-wrap">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>检测项</th>
+                  <th>状态</th>
+                  <th>说明</th>
+                </tr>
+              </thead>
+              <tbody id="detailBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="history-head">
+          <h2 class="section-title"><i class="ri-history-line"></i>历史记录区</h2>
+          <button class="ghost-btn" id="clearHistoryBtn" type="button">清空历史</button>
+        </div>
+
+        <div class="history-table-wrap">
+          <table class="history">
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>接口/Key</th>
+                <th>结果快照</th>
+                <th>得分</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-text" id="historyEmpty">暂无记录，完成一次检测后会自动写入。</p>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal" id="verifyModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card">
+      <h3 class="modal-title"><i class="ri-cloud-line" style="color: var(--brand);"></i>Cloudflare 人机验证</h3>
+      <p class="modal-sub">通过 Turnstile 验证后，才允许触发检测请求。</p>
+      <div id="turnstileBox"></div>
+      <div class="fallback">
+        <span>若当前网络无法加载 Turnstile，可先用模拟通过继续联调 UI。</span>
+        <button type="button" id="mockPassBtn">模拟通过</button>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-light" type="button" id="cancelVerifyBtn">取消</button>
+        <button class="btn-main" type="button" id="continueBtn" disabled>继续检测</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const vendors = [
+      { name: "Anthropic Official", url: "https://api.anthropic.com/v1/messages", logo: "AN", color: "#0ea37d" },
+      { name: "OpenRouter", url: "https://openrouter.ai/api/v1/chat/completions", logo: "OR", color: "#fb923c" },
+      { name: "OneAPI Gateway", url: "https://api.oneapi.run/v1/messages", logo: "OA", color: "#2563eb" },
+      { name: "FastBridge", url: "https://bridge.fastapi.top/v1/messages", logo: "FB", color: "#db2777" },
+      { name: "CloudProxy", url: "https://claude.proxyhub.cc/v1/messages", logo: "CP", color: "#7c3aed" },
+      { name: "MirrorHub", url: "https://api.mirrorhub.net/v1/messages", logo: "MH", color: "#0f766e" }
+    ];
+
+    const detailTemplates = [
+      { key: "signature", name: "Signature 检测" },
+      { key: "identity", name: "身份回传检测" },
+      { key: "thinking", name: "Thinking 过程检测" },
+      { key: "tools", name: "工具调用测试 (Tools)" },
+      { key: "json", name: "响应结构 (JSON)" },
+      { key: "multi", name: "多轮对话一致性" },
+      { key: "latency", name: "延迟表现" },
+      { key: "tps", name: "生成速率 (T/s)" }
+    ];
+
+    const endpointInput = document.getElementById("endpointInput");
+    const endpointDropdown = document.getElementById("endpointDropdown");
+    const comboToggle = document.getElementById("comboToggle");
+
+    const apiKeyInput = document.getElementById("apiKeyInput");
+    const toggleKeyBtn = document.getElementById("toggleKeyBtn");
+    const copyKeyBtn = document.getElementById("copyKeyBtn");
+    const clearKeyBtn = document.getElementById("clearKeyBtn");
+
+    const modelGrid = document.getElementById("modelGrid");
+    const startBtn = document.getElementById("startBtn");
+    const captchaChip = document.getElementById("captchaChip");
+
+    const runMeta = document.getElementById("runMeta");
+    const scoreRing = document.getElementById("scoreRing");
+    const scoreNum = document.getElementById("scoreNum");
+    const gradeText = document.getElementById("gradeText");
+    const summaryText = document.getElementById("summaryText");
+    const latencyVal = document.getElementById("latencyVal");
+    const tpsVal = document.getElementById("tpsVal");
+    const detailBody = document.getElementById("detailBody");
+
+    const historyBody = document.getElementById("historyBody");
+    const historyEmpty = document.getElementById("historyEmpty");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+
+    const verifyModal = document.getElementById("verifyModal");
+    const cancelVerifyBtn = document.getElementById("cancelVerifyBtn");
+    const continueBtn = document.getElementById("continueBtn");
+    const mockPassBtn = document.getElementById("mockPassBtn");
+    const turnstileBox = document.getElementById("turnstileBox");
+
+    const toast = document.getElementById("toast");
+
+    const ringRadius = 56;
+    const ringLength = 2 * Math.PI * ringRadius;
+    scoreRing.style.strokeDasharray = String(ringLength);
+    scoreRing.style.strokeDashoffset = String(ringLength);
+
+    let apiKeyRaw = "";
+    let keyVisible = false;
+
+    let pendingPayload = null;
+    let turnstileWidgetId = null;
+    let turnstilePassed = false;
+
+    const historyRecords = [];
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1700);
+    }
+
+    function maskKey(value) {
+      if (!value) return "";
+      if (value.length <= 7) return `${value.slice(0, 1)}***`;
+      return `${value.slice(0, 5)}***${value.slice(-2)}`;
+    }
+
+    function maskEndpoint(urlText) {
+      if (!urlText) return "-";
+      try {
+        const parsed = new URL(urlText);
+        let path = parsed.pathname || "/";
+        if (path.length > 14) {
+          path = `${path.slice(0, 7)}***${path.slice(-4)}`;
+        }
+        return `${parsed.host}${path}`;
+      } catch {
+        if (urlText.length <= 24) return urlText;
+        return `${urlText.slice(0, 12)}***${urlText.slice(-7)}`;
+      }
+    }
+
+    function formatTime(date) {
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    }
+
+    function renderVendors(filterText = "") {
+      const q = filterText.trim().toLowerCase();
+      const list = vendors.filter((v) => {
+        if (!q) return true;
+        return v.name.toLowerCase().includes(q) || v.url.toLowerCase().includes(q);
+      });
+
+      endpointDropdown.innerHTML = "";
+      if (!list.length) {
+        endpointDropdown.innerHTML = '<div style="padding:10px 12px;color:#7f93a4;font-size:12px;">未匹配到中转商，继续手动输入即可。</div>';
+        return;
+      }
+
+      list.forEach((v) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "vendor-item";
+        btn.innerHTML = `
+          <span class="vendor-logo" style="background:${v.color}">${v.logo}</span>
+          <span>
+            <span class="vendor-name">${v.name}</span><br>
+            <span class="vendor-url">${v.url}</span>
+          </span>
+        `;
+        btn.addEventListener("click", () => {
+          endpointInput.value = v.url;
+          endpointDropdown.classList.remove("show");
+        });
+        endpointDropdown.appendChild(btn);
+      });
+    }
+
+    function refreshKeyInputView() {
+      const focused = document.activeElement === apiKeyInput;
+      if (focused) {
+        apiKeyInput.type = keyVisible ? "text" : "password";
+        apiKeyInput.value = apiKeyRaw;
+      } else {
+        apiKeyInput.type = "text";
+        apiKeyInput.value = maskKey(apiKeyRaw);
+      }
+      toggleKeyBtn.innerHTML = keyVisible ? '<i class="ri-eye-line"></i>' : '<i class="ri-eye-off-line"></i>';
+    }
+
+    function getSelectedModels() {
+      return [...modelGrid.querySelectorAll(".model-card.active")].map((card) => ({
+        id: card.dataset.model,
+        name: card.dataset.name
+      }));
+    }
+
+    function gradeFromScore(score) {
+      if (score >= 85) {
+        return {
+          text: "正品",
+          className: "good",
+          desc: "核心指标稳定，接口表现接近目标高端模型。",
+          ring: "#19a46f"
+        };
+      }
+      if (score >= 60) {
+        return {
+          text: "疑似掺水",
+          className: "mid",
+          desc: "有关键项异常，建议继续做多轮与工具调用复核。",
+          ring: "#d08913"
+        };
+      }
+      return {
+        text: "伪造",
+        className: "bad",
+        desc: "多个核心检测项不达标，高概率并非声明模型。",
+        ring: "#dc3e33"
+      };
+    }
+
+    function asStatusLabel(status) {
+      if (status === "pass") {
+        return '<span class="status pass"><i class="ri-checkbox-circle-fill"></i>通过</span>';
+      }
+      if (status === "warn") {
+        return '<span class="status warn"><i class="ri-error-warning-fill"></i>波动</span>';
+      }
+      return '<span class="status fail"><i class="ri-close-circle-fill"></i>失败</span>';
+    }
+
+    function applyResult(result, metaText = "") {
+      const grade = gradeFromScore(result.score);
+      scoreNum.textContent = `${result.score}`;
+      const offset = ringLength * (1 - result.score / 100);
+      scoreRing.style.strokeDashoffset = String(offset);
+      scoreRing.style.stroke = grade.ring;
+
+      gradeText.className = `grade ${grade.className}`;
+      gradeText.textContent = grade.text;
+      summaryText.textContent = result.summary || grade.desc;
+      latencyVal.textContent = `${result.latencyMs}ms`;
+      tpsVal.textContent = `${result.tps}`;
+      runMeta.textContent = metaText || "刚刚更新";
+
+      detailBody.innerHTML = "";
+      detailTemplates.forEach((template) => {
+        const item = result.details[template.key];
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${template.name}</td>
+          <td>${asStatusLabel(item.status)}</td>
+          <td>${item.note}</td>
+        `;
+        detailBody.appendChild(tr);
+      });
+    }
+
+    function buildMockResult(payload) {
+      const endpoint = payload.endpoint.toLowerCase();
+      const modelCount = payload.models.length;
+      const suspiciousHints = ["haiku", "cheap", "mini", "trial", "turbo", "lite"];
+
+      let score = 70 + Math.floor(Math.random() * 26);
+      if (endpoint.includes("anthropic") || endpoint.includes("openrouter")) score += 7;
+      if (endpoint.includes("proxy") || endpoint.includes("bridge")) score -= 6;
+      if (suspiciousHints.some((k) => endpoint.includes(k))) score -= 18;
+      if (modelCount > 1) score += 2;
+      score = Math.max(18, Math.min(99, score));
+
+      const latencyMs = Math.floor(260 + Math.random() * 2100);
+      const tps = (8 + Math.random() * 56).toFixed(1);
+
+      const passStrong = score >= 80;
+      const passMedium = score >= 62;
+
+      const details = {
+        signature: {
+          status: passMedium ? "pass" : "fail",
+          note: passMedium ? "返回签名长度稳定，形态接近官方。" : "签名字段缺失或长度明显异常。"
+        },
+        identity: {
+          status: passMedium ? "pass" : "fail",
+          note: passMedium ? "模型身份回传与目标版本一致。" : "身份自述与目标模型不一致。"
+        },
+        thinking: {
+          status: passStrong ? "pass" : passMedium ? "warn" : "fail",
+          note: passStrong
+            ? "Thinking 块连续，推理段落完整。"
+            : passMedium
+              ? "Thinking 信号存在但连续性一般。"
+              : "未观察到可信的 Thinking 输出。"
+        },
+        tools: {
+          status: passMedium ? "pass" : "fail",
+          note: passMedium ? "工具调用参数结构可解析。" : "工具调用参数混乱或直接忽略。"
+        },
+        json: {
+          status: passStrong ? "pass" : "warn",
+          note: passStrong ? "JSON 结构与官方格式高度匹配。" : "JSON 字段大体可用，但存在轻微偏差。"
+        },
+        multi: {
+          status: passStrong ? "pass" : passMedium ? "warn" : "fail",
+          note: passStrong
+            ? "多轮上下文衔接正常，无明显记忆截断。"
+            : passMedium
+              ? "长对话出现轻微遗忘，建议复检。"
+              : "多轮记忆明显断裂，疑似低端模型。"
+        },
+        latency: {
+          status: latencyMs < 950 ? "pass" : latencyMs < 1650 ? "warn" : "fail",
+          note: latencyMs < 950 ? "延迟表现优秀。" : latencyMs < 1650 ? "延迟处于可接受区间。" : "延迟偏高，需关注链路质量。"
+        },
+        tps: {
+          status: Number(tps) >= 25 ? "pass" : Number(tps) >= 14 ? "warn" : "fail",
+          note: Number(tps) >= 25 ? "生成速度稳定。" : Number(tps) >= 14 ? "生成速度略慢。" : "生成速度偏低。"
+        }
+      };
+
+      return {
+        score,
+        latencyMs,
+        tps,
+        summary: gradeFromScore(score).desc,
+        details
+      };
+    }
+
+    function renderHistory() {
+      historyBody.innerHTML = "";
+      historyEmpty.style.display = historyRecords.length ? "none" : "block";
+
+      historyRecords.forEach((record) => {
+        const grade = gradeFromScore(record.result.score);
+        const row = document.createElement("tr");
+        row.dataset.id = record.id;
+        if (record.active) row.classList.add("active");
+
+        const passCount = Object.values(record.result.details).filter((item) => item.status === "pass").length;
+        const snapshotIcon = record.result.score >= 60
+          ? '<i class="ri-checkbox-circle-fill" style="color: var(--ok)"></i>'
+          : '<i class="ri-close-circle-fill" style="color: var(--bad)"></i>';
+
+        row.innerHTML = `
+          <td>${record.time}</td>
+          <td>${record.endpointMask}<br><span style="color:#8699aa;">${record.keyMask}</span></td>
+          <td>${snapshotIcon} ${passCount}/8</td>
+          <td><span class="score-pill ${grade.className}">${record.result.score}</span></td>
+        `;
+
+        row.addEventListener("click", () => {
+          historyRecords.forEach((item) => {
+            item.active = item.id === record.id;
+          });
+          applyResult(record.result, `历史回放：${record.time}`);
+          renderHistory();
+        });
+
+        historyBody.appendChild(row);
+      });
+    }
+
+    function addHistory(payload, result) {
+      const record = {
+        id: `${Date.now()}_${Math.random().toString(16).slice(2, 7)}`,
+        time: formatTime(new Date()),
+        endpointMask: maskEndpoint(payload.endpoint),
+        keyMask: maskKey(payload.apiKey),
+        active: true,
+        result,
+        models: payload.models.map((m) => m.name)
+      };
+
+      historyRecords.forEach((item) => {
+        item.active = false;
+      });
+
+      historyRecords.unshift(record);
+      if (historyRecords.length > 30) {
+        historyRecords.length = 30;
+      }
+      renderHistory();
+    }
+
+    function setCaptchaState(passed) {
+      captchaChip.classList.toggle("ok", passed);
+      captchaChip.innerHTML = passed
+        ? '<i class="ri-shield-check-line"></i><span>已通过 Turnstile 验证</span>'
+        : '<i class="ri-shield-star-line"></i><span>未完成人机验证</span>';
+    }
+
+    function resetTurnstileState() {
+      turnstilePassed = false;
+      continueBtn.disabled = true;
+      setCaptchaState(false);
+    }
+
+    function handleTurnstilePass() {
+      turnstilePassed = true;
+      continueBtn.disabled = false;
+      setCaptchaState(true);
+      showToast("人机验证通过");
+    }
+
+    function ensureTurnstileWidget() {
+      turnstileBox.innerHTML = "";
+      if (window.turnstile && typeof window.turnstile.render === "function") {
+        turnstileWidgetId = window.turnstile.render("#turnstileBox", {
+          sitekey: "1x00000000000000000000AA",
+          callback: () => {
+            handleTurnstilePass();
+          },
+          "expired-callback": () => {
+            resetTurnstileState();
+          },
+          "error-callback": () => {
+            resetTurnstileState();
+            showToast("Turnstile 加载异常，可用模拟通过继续");
+          }
+        });
+      } else {
+        turnstileBox.innerHTML = '<span style="font-size:12px;color:#6f8395;">Turnstile 未加载，可点击下方“模拟通过”。</span>';
+      }
+    }
+
+    function openVerifyModal(payload) {
+      pendingPayload = payload;
+      resetTurnstileState();
+      verifyModal.classList.add("show");
+      verifyModal.setAttribute("aria-hidden", "false");
+      ensureTurnstileWidget();
+    }
+
+    function closeVerifyModal() {
+      verifyModal.classList.remove("show");
+      verifyModal.setAttribute("aria-hidden", "true");
+    }
+
+    function runDetection(payload) {
+      startBtn.disabled = true;
+      startBtn.innerHTML = '<i class="ri-loader-4-line"></i> 检测中...';
+
+      window.setTimeout(() => {
+        const result = buildMockResult(payload);
+        const modelLabel = payload.models.map((m) => m.name).join(" / ");
+        applyResult(result, `刚刚完成：${modelLabel}`);
+        addHistory(payload, result);
+
+        startBtn.disabled = false;
+        startBtn.innerHTML = '<i class="ri-shield-check-line"></i> 开始检测';
+        showToast("检测完成，已写入历史记录");
+      }, 950);
+    }
+
+    function validateAndStart() {
+      const endpoint = endpointInput.value.trim();
+      const apiKey = apiKeyRaw.trim();
+      const models = getSelectedModels();
+
+      if (!endpoint) {
+        showToast("请先填写 API 接口地址");
+        endpointInput.focus();
+        return;
+      }
+      if (!apiKey) {
+        showToast("请先填写 API Key");
+        apiKeyInput.focus();
+        return;
+      }
+      if (!models.length) {
+        showToast("请至少勾选一个目标模型");
+        return;
+      }
+
+      openVerifyModal({ endpoint, apiKey, models });
+    }
+
+    function seedInitialView() {
+      const emptyResult = {
+        score: 0,
+        latencyMs: "--",
+        tps: "--",
+        summary: "点击“开始检测”后生成结果",
+        details: {
+          signature: { status: "warn", note: "待检测" },
+          identity: { status: "warn", note: "待检测" },
+          thinking: { status: "warn", note: "待检测" },
+          tools: { status: "warn", note: "待检测" },
+          json: { status: "warn", note: "待检测" },
+          multi: { status: "warn", note: "待检测" },
+          latency: { status: "warn", note: "待检测" },
+          tps: { status: "warn", note: "待检测" }
+        }
+      };
+      applyResult(emptyResult, "等待检测");
+      scoreNum.textContent = "--";
+      scoreRing.style.strokeDashoffset = String(ringLength);
+      gradeText.textContent = "待检测";
+      gradeText.className = "grade mid";
+      latencyVal.textContent = "--";
+      tpsVal.textContent = "--";
+    }
+
+    renderVendors();
+    seedInitialView();
+    refreshKeyInputView();
+    renderHistory();
+
+    endpointInput.addEventListener("focus", () => {
+      renderVendors(endpointInput.value);
+      endpointDropdown.classList.add("show");
+    });
+
+    endpointInput.addEventListener("input", () => {
+      renderVendors(endpointInput.value);
+      endpointDropdown.classList.add("show");
+    });
+
+    comboToggle.addEventListener("click", () => {
+      renderVendors(endpointInput.value);
+      endpointDropdown.classList.toggle("show");
+      endpointInput.focus();
+    });
+
+    document.addEventListener("click", (event) => {
+      const within = document.getElementById("endpointCombobox").contains(event.target);
+      if (!within) {
+        endpointDropdown.classList.remove("show");
+      }
+    });
+
+    apiKeyInput.addEventListener("focus", refreshKeyInputView);
+    apiKeyInput.addEventListener("input", (event) => {
+      apiKeyRaw = event.target.value;
+    });
+    apiKeyInput.addEventListener("blur", refreshKeyInputView);
+
+    toggleKeyBtn.addEventListener("click", () => {
+      keyVisible = !keyVisible;
+      refreshKeyInputView();
+      apiKeyInput.focus();
+      apiKeyInput.setSelectionRange(apiKeyRaw.length, apiKeyRaw.length);
+    });
+
+    copyKeyBtn.addEventListener("click", async () => {
+      if (!apiKeyRaw) {
+        showToast("当前没有可复制的 Key");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(apiKeyRaw);
+        showToast("Key 已复制");
+      } catch {
+        showToast("复制失败，请检查浏览器权限");
+      }
+    });
+
+    clearKeyBtn.addEventListener("click", () => {
+      apiKeyRaw = "";
+      refreshKeyInputView();
+      showToast("Key 已清空");
+    });
+
+    modelGrid.addEventListener("click", (event) => {
+      const card = event.target.closest(".model-card");
+      if (!card) return;
+      card.classList.toggle("active");
+    });
+
+    startBtn.addEventListener("click", validateAndStart);
+
+    cancelVerifyBtn.addEventListener("click", () => {
+      closeVerifyModal();
+      pendingPayload = null;
+    });
+
+    mockPassBtn.addEventListener("click", () => {
+      handleTurnstilePass();
+    });
+
+    continueBtn.addEventListener("click", () => {
+      if (!pendingPayload || !turnstilePassed) {
+        showToast("请先完成人机验证");
+        return;
+      }
+      closeVerifyModal();
+      runDetection(pendingPayload);
+      pendingPayload = null;
+    });
+
+    clearHistoryBtn.addEventListener("click", () => {
+      historyRecords.length = 0;
+      renderHistory();
+      showToast("历史已清空");
+    });
+
+    verifyModal.addEventListener("click", (event) => {
+      if (event.target === verifyModal) {
+        closeVerifyModal();
+      }
+    });
+  </script>
+</body>
+</html>
